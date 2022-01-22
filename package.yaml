@@ -1,0 +1,84 @@
+name: gcalias
+version: '1.0'
+synopsis: Google Contacts CSV to mutt alias file
+description: A utility to extract contact records from a CSV export of Google
+  Contacts and fashion an email aliases file in the format expected by the mutt
+  email client.
+license: ISC
+author: Dino Morelli
+maintainer: dino@ui3.info
+copyright: 2022 Dino Morelli
+category: Unclassified
+extra-source-files:
+- CHANGELOG.md
+- .gitignore
+- package.yaml
+- README.md
+- stack.yaml
+
+# github: dino-/gcalias
+
+ghc-options:
+- -fwarn-tabs
+- -Wall
+- -Wcompat
+- -Wincomplete-record-updates
+- -Wincomplete-uni-patterns
+- -Wpartial-fields
+- -Wredundant-constraints
+
+default-extensions:
+- BangPatterns
+- DeriveFoldable
+- DeriveFunctor
+- DeriveGeneric
+- DeriveLift
+- DeriveTraversable
+- EmptyCase
+- FlexibleContexts
+- FlexibleInstances
+- GeneralizedNewtypeDeriving
+- InstanceSigs
+- KindSignatures
+- LambdaCase
+- MultiParamTypeClasses
+- MultiWayIf
+- NamedFieldPuns
+- NumericUnderscores
+- OverloadedStrings
+- ScopedTypeVariables
+- StandaloneDeriving
+- TupleSections
+
+dependencies:
+- base >=3 && <5
+
+library:
+  source-dirs: src/lib
+  dependencies:
+  - bytestring
+  - cassava
+  # - newtype-generics
+  # - text
+  - vector
+
+executables:
+  gcalias:
+    source-dirs: src/app
+    main: Main.hs
+    dependencies:
+    - gcalias
+
+# tests:
+#   gcalias-test-suite:
+#     source-dirs: src/test
+#     main: Main.hs
+#     dependencies:
+#     - gcalias
+#     - tasty
+#     - tasty-hunit
+#     - tasty-quickcheck
+#     ghc-options:
+#     - -rtsopts
+#     - -threaded
+#     - -with-rtsopts=-N
