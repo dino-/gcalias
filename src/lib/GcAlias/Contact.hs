@@ -17,9 +17,19 @@ import qualified Data.Vector as V
 import Text.Printf
 
 
+newtype Name = Name String
+  deriving Show
+
+newtype NickName = NickName String
+  deriving Show
+
+newtype Org = Org String
+  deriving Show
+
 data Contact = Contact
-  { name :: !String
-  , org :: !String
+  { name :: !Name
+  , nickName :: !NickName
+  , org :: !Org
   , groups :: !(Set String)
   , emails :: ![(String, String)]
   }
@@ -31,8 +41,9 @@ instance FromNamedRecord Contact where
     evalues <- mapM (r .:) $ mkLabels "E-mail %d - Value" [1..8]
     let allEmails = filter (/= ("","")) $ zip etypes evalues
     Contact
-      <$> r .: "Name"
-      <*> r .: "Organization 1 - Name"
+      <$> (Name <$> r .: "Name")
+      <*> (NickName <$> r .: "Nickname")
+      <*> (Org <$> r .: "Organization 1 - Name")
       <*> (splitOnColons <$> r .: "Group Membership")
       <*> pure allEmails
 
