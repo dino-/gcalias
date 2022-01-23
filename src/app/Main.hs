@@ -1,6 +1,11 @@
+import Control.Monad ( forM_ )
+
 import GcAlias.Contact
 
 
 main :: IO ()
 main = do
-  explore
+  ecs <- importContacts "util/resources/all-contacts.csv"
+  case ecs of
+    Left err -> putStrLn err
+    Right cs -> forM_ cs print

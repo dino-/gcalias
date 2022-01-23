@@ -1,23 +1,25 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module GcAlias.Contact
+  ( importAllContacts
+  , importContacts
+  )
   where
 
--- import qualified Data.ByteString as B
 import qualified Data.ByteString.Char8 as C8
 import qualified Data.ByteString.Lazy as BL
 import Data.Csv ( (.:), decodeByName, FromNamedRecord, parseNamedRecord )
 import Data.List.Split
+import Data.Maybe ( mapMaybe )
 import qualified Data.Set as Set
 import Data.Set ( Set )
 import qualified Data.Vector as V
-import Data.Vector ( Vector )
--- import Debug.Trace
 import Text.Printf
 
 
 data Contact = Contact
   { name :: !String
+  , org :: !String
   , groups :: !(Set String)
   , emails :: ![(String, String)]
   }
@@ -30,6 +32,7 @@ instance FromNamedRecord Contact where
     let allEmails = filter (/= ("","")) $ zip etypes evalues
     Contact
       <$> r .: "Name"
+      <*> r .: "Organization 1 - Name"
       <*> (splitOnColons <$> r .: "Group Membership")
       <*> pure allEmails
 
@@ -42,8 +45,8 @@ splitOnColons :: String -> Set String
 splitOnColons = Set.fromList . splitOn " ::: "
 
 
-onlyMyContacts :: Vector Contact -> Vector Contact
-onlyMyContacts = V.mapMaybe f
+onlyMyContacts :: [Contact] -> [Contact]
+onlyMyContacts = mapMaybe f
   where
     myContactsLabel = "* myContacts"
     f c@(Contact { groups = groupsSet }) =
@@ -52,17 +55,17 @@ onlyMyContacts = V.mapMaybe f
         else Nothing
 
 
-onlyWithEmails :: Vector Contact -> Vector Contact
-onlyWithEmails = V.filter $ not . null . emails
+onlyWithEmails :: [Contact] -> [Contact]
+onlyWithEmails = filter $ not . null . emails
 
 
-explore :: IO ()
-explore = do
-  csvData <- BL.readFile "util/resources/all-contacts.csv"
-  case decodeByName csvData of
-    Left err -> putStrLn err
-    Right (_, v) -> do
-      let vContacts = onlyWithEmails . onlyMyContacts $ v
-      V.forM_ vContacts $ \p -> do
-        print (p :: Contact)
-        -- printf "\"%s\", \"%s\"\n" (name p) ()
+importAllContacts :: FilePath -> IO (Either String [Contact])
+importAllContacts filePath = do
+  csvData <- BL.readFile filePath
+  pure . either Left (Right . V.toList . snd) . decodeByName $ csvData
+
+
+importContacts :: FilePath -> IO (Either String [Contact])
+importContacts filePath = do
+  allContacts <- importAllContacts filePath
+  pure $ onlyWithEmails . onlyMyContacts <$> allContacts
