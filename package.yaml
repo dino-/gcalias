@@ -58,7 +58,9 @@ library:
   dependencies:
   - bytestring
   - cassava
+  - containers
   # - newtype-generics
+  - split
   # - text
   - vector
 
