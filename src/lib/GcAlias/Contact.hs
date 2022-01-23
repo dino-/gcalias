@@ -1,11 +1,14 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module GcAlias.Contact
-  ( importAllContacts
+  ( Contact (..)
+  , Name (..), NickName (..), Org (..)
+  , importAllContacts
   , importContacts
   )
   where
 
+import Control.Newtype.Generics
 import qualified Data.ByteString.Char8 as C8
 import qualified Data.ByteString.Lazy as BL
 import Data.Csv ( (.:), decodeByName, FromNamedRecord, parseNamedRecord )
@@ -14,11 +17,14 @@ import Data.Maybe ( mapMaybe )
 import qualified Data.Set as Set
 import Data.Set ( Set )
 import qualified Data.Vector as V
+import GHC.Generics
 import Text.Printf
 
 
 newtype Name = Name String
-  deriving Show
+  deriving (Generic, Show)
+
+instance Newtype Name
 
 newtype NickName = NickName String
   deriving Show
@@ -27,9 +33,9 @@ newtype Org = Org String
   deriving Show
 
 data Contact = Contact
-  { name :: !Name
-  , nickName :: !NickName
-  , org :: !Org
+  { name :: !(Maybe Name)
+  , nickName :: !(Maybe NickName)
+  , org :: !(Maybe Org)
   , groups :: !(Set String)
   , emails :: ![(String, String)]
   }
@@ -41,11 +47,16 @@ instance FromNamedRecord Contact where
     evalues <- mapM (r .:) $ mkLabels "E-mail %d - Value" [1..8]
     let allEmails = filter (/= ("","")) $ zip etypes evalues
     Contact
-      <$> (Name <$> r .: "Name")
-      <*> (NickName <$> r .: "Nickname")
-      <*> (Org <$> r .: "Organization 1 - Name")
+      <$> ((Name <$>)     <$> (strToMaybe <$> r .: "Name"))
+      <*> ((NickName <$>) <$> (strToMaybe <$> r .: "Nickname"))
+      <*> ((Org <$>)      <$> (strToMaybe <$> r .: "Organization 1 - Name"))
       <*> (splitOnColons <$> r .: "Group Membership")
       <*> pure allEmails
+
+
+strToMaybe :: String -> Maybe String
+strToMaybe "" = Nothing
+strToMaybe s = Just s
 
 
 mkLabels :: String -> [Int] -> [C8.ByteString]

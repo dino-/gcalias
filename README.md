@@ -23,6 +23,9 @@ Source code is available from github at the [gcalias](https://github.com/dino-/g
 - Support reading directly from the `.tar.gz` file from Google
 - Support extracting a specific file from the `.tar.gz` with a default
 - Proper exit codes with 1 if the document fails to read and good error messages
+- Support multiple emails
+- More types, especially in the new GcAlias.Alias module
+- Add some unit tests
 
 
 ## Contact

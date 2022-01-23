@@ -59,9 +59,8 @@ library:
   - bytestring
   - cassava
   - containers
-  # - newtype-generics
+  - newtype-generics
   - split
-  # - text
   - vector
 
 executables:
