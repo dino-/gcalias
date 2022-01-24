@@ -81,13 +81,11 @@ onlyWithEmails :: [Contact] -> [Contact]
 onlyWithEmails = filter $ not . null . emails
 
 
-importAllContacts :: FilePath -> IO (Either String [Contact])
-importAllContacts filePath = do
-  csvData <- BL.readFile filePath
-  pure . either Left (Right . V.toList . snd) . decodeByName $ csvData
+importAllContacts :: BL.ByteString -> Either String [Contact]
+importAllContacts csvData =
+  either Left (Right . V.toList . snd) . decodeByName $ csvData
 
 
-importContacts :: FilePath -> IO (Either String [Contact])
-importContacts filePath = do
-  allContacts <- importAllContacts filePath
-  pure $ onlyWithEmails . onlyMyContacts <$> allContacts
+importContacts :: BL.ByteString -> Either String [Contact]
+importContacts csvData =
+  onlyWithEmails . onlyMyContacts <$> importAllContacts csvData
