@@ -1,5 +1,8 @@
 import System.Environment ( getArgs )
 import System.Exit ( exitFailure, exitSuccess )
+import System.IO
+  ( BufferMode (NoBuffering)
+  , hPutStrLn, hSetBuffering, stderr, stdout )
 
 import GcAlias.Alias
 import GcAlias.Contact
@@ -12,12 +15,14 @@ myContactsPath = "Takeout/Contacts/My Contacts/My Contacts.csv"
 
 main :: IO ()
 main = do
+  mapM_ (flip hSetBuffering $ NoBuffering) [stderr, stdout]
+
   paths <- parseArgs =<< getArgs
   eCsvContents <- accessFile paths
   let eContacts = importContacts =<< eCsvContents
   let eAliases = (map mkAliasLine . toAliases) <$> eContacts
   case eAliases of
-    Left err -> putStrLn err >> exitFailure
+    Left err -> hPutStrLn stderr err >> exitFailure
     Right as -> mapM_ putStrLn as
 
 
@@ -31,5 +36,5 @@ parseArgs _ = usage exitFailure
 
 usage :: IO a -> IO a
 usage exitAction = do
-  putStrLn "usage: gcalias ARCHIVE_PATH [CSV_PATH]"
+  hPutStrLn stderr "usage: gcalias ARCHIVE_PATH [CSV_PATH]"
   exitAction
