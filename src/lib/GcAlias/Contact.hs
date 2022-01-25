@@ -8,6 +8,7 @@ module GcAlias.Contact
   )
   where
 
+import Control.Arrow ( (***), second )
 import Control.Newtype.Generics
 import qualified Data.ByteString.Char8 as C8
 import qualified Data.ByteString.Lazy as BL
@@ -99,11 +100,13 @@ onlyWithEmails :: [Contact] -> [Contact]
 onlyWithEmails = filter $ not . null . emails
 
 
-importAllContacts :: BL.ByteString -> Either String [Contact]
-importAllContacts csvData =
-  either Left (Right . V.toList . snd) . decodeByName $ csvData
+importAllContacts :: BL.ByteString -> Either String ([String], [Contact])
+importAllContacts csvData = either Left
+  (Right . ((V.toList . V.map C8.unpack) *** V.toList))
+  . decodeByName $ csvData
 
 
-importContacts :: BL.ByteString -> Either String [Contact]
-importContacts csvData =
-  onlyWithEmails . onlyMyContacts <$> importAllContacts csvData
+importContacts :: BL.ByteString -> Either String ([String], [Contact])
+importContacts csvData = either Left
+  (Right . second (onlyWithEmails . onlyMyContacts))
+  . importAllContacts $ csvData

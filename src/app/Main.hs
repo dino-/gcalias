@@ -17,9 +17,11 @@ main = do
   opts <- parseOpts
   eCsvContents <- accessFile (optArchivePath opts) (optCsvPath opts)
   let eContacts = importContacts =<< eCsvContents
-  let eAliases = (map mkAliasLine . toAliases) <$> eContacts
+  let eAliases = (map mkAliasLine . toAliases . snd) <$> eContacts
   when (op DumpContacts . optDumpContacts $ opts) $
-    display $ map show <$> eContacts
+    display $ map show <$> either Left (Right . snd) eContacts
+  when (op DumpFields . optDumpFields $ opts) $
+    display $ map show <$> either Left (Right . fst) eContacts
   display eAliases
 
 
