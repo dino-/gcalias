@@ -72,16 +72,17 @@ executables:
     dependencies:
     - gcalias
 
-# tests:
-#   gcalias-test-suite:
-#     source-dirs: src/test
-#     main: Main.hs
-#     dependencies:
-#     - gcalias
-#     - tasty
-#     - tasty-hunit
-#     - tasty-quickcheck
-#     ghc-options:
-#     - -rtsopts
-#     - -threaded
-#     - -with-rtsopts=-N
+tests:
+  gcalias-test-suite:
+    source-dirs: src/test
+    main: Main.hs
+    dependencies:
+    - containers
+    - gcalias
+    - tasty
+    - tasty-hunit
+    # - tasty-quickcheck
+    ghc-options:
+    - -rtsopts
+    - -threaded
+    - -with-rtsopts=-N

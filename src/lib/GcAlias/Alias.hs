@@ -1,5 +1,7 @@
 module GcAlias.Alias
-  ( mkAliasLine, toAliases )
+  ( Alias (..)
+  , mkAliasLine, toAliases
+  )
   where
 
 import Control.Newtype.Generics ( op )
@@ -15,7 +17,7 @@ data Alias = Alias
   , aname :: !String
   , email :: !String
   }
-  deriving Show
+  deriving (Eq, Show)
 
 
 toAliases :: [Contact] -> [Alias]
