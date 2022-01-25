@@ -70,7 +70,11 @@ executables:
     source-dirs: src/app
     main: Main.hs
     dependencies:
+    - ansi-wl-pprint
     - gcalias
+    - heredoc
+    - newtype-generics
+    - optparse-applicative
 
 tests:
   gcalias-test-suite:

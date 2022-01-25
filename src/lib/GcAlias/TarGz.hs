@@ -10,9 +10,11 @@ import Codec.Archive.Tar ( Entry, EntryContent (NormalFile), FormatError )
 import qualified Codec.Compression.GZip as GZip
 import qualified Data.ByteString.Lazy as BL
 
+import GcAlias.Common ( ArchivePath (..), CsvPath (..) )
 
-accessFile :: (FilePath, FilePath) -> IO (Either String BL.ByteString)
-accessFile (tarGzPath, csvPath) = do
+
+accessFile :: ArchivePath -> CsvPath -> IO (Either String BL.ByteString)
+accessFile (ArchivePath tarGzPath) (CsvPath csvPath) = do
   tarEntries <- Tar.read . GZip.decompress <$> BL.readFile tarGzPath
   pure $ finalizeResult $ Tar.foldEntries (f csvPath) (Right []) (Left) tarEntries
 
