@@ -1,5 +1,6 @@
--- import Control.Newtype.Generics
-import System.Exit ( exitFailure )
+import Control.Monad ( when )
+import Control.Newtype.Generics
+import System.Exit ( exitFailure, exitSuccess )
 import System.IO
   ( BufferMode (NoBuffering)
   , hPutStrLn, hSetBuffering, stderr, stdout )
@@ -17,6 +18,14 @@ main = do
   eCsvContents <- accessFile (optArchivePath opts) (optCsvPath opts)
   let eContacts = importContacts =<< eCsvContents
   let eAliases = (map mkAliasLine . toAliases) <$> eContacts
-  case eAliases of
-    Left err -> hPutStrLn stderr err >> exitFailure
-    Right as -> mapM_ putStrLn as
+  when (op DumpContacts . optDumpContacts $ opts) $
+    display $ map show <$> eContacts
+  display eAliases
+
+
+-- Display lines of whatever we have to display, or the error message, and then
+-- get out of here!
+display :: Either String [String] -> IO ()
+display = either
+  (\err -> hPutStrLn stderr err >> exitFailure)
+  (\output -> mapM_ putStrLn output >> exitSuccess)
