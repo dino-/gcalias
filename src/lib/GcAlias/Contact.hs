@@ -11,9 +11,13 @@ module GcAlias.Contact
 import Control.Newtype.Generics
 import qualified Data.ByteString.Char8 as C8
 import qualified Data.ByteString.Lazy as BL
-import Data.Csv ( (.:), decodeByName, FromNamedRecord, parseNamedRecord )
+import Data.Csv
+  ( Parser, (.:), FromField, NamedRecord
+  , decodeByName, FromNamedRecord, parseField, parseNamedRecord
+  )
+import qualified Data.HashMap.Lazy as HM
 import Data.List.Split
-import Data.Maybe ( mapMaybe )
+import Data.Maybe ( catMaybes, mapMaybe )
 import qualified Data.Set as Set
 import Data.Set ( Set )
 import qualified Data.Vector as V
@@ -43,8 +47,8 @@ data Contact = Contact
 
 instance FromNamedRecord Contact where
   parseNamedRecord r = do
-    etypes <- mapM (r .:) $ mkLabels "E-mail %d - Type" [1..8]
-    evalues <- mapM (r .:) $ mkLabels "E-mail %d - Value" [1..8]
+    etypes <- (catMaybes <$>) <$> mapM (r .:?) $ mkLabels "E-mail %d - Type"
+    evalues <- (catMaybes <$>) <$> mapM (r .:?) $ mkLabels "E-mail %d - Value"
     let allEmails = filter (/= ("","")) $ zip etypes evalues
     Contact
       <$> ((Name <$>)     <$> (strToMaybe <$> r .: "Name"))
@@ -54,13 +58,27 @@ instance FromNamedRecord Contact where
       <*> pure allEmails
 
 
+-- Our data has optional columns. Needed to implement a named record lookup
+-- function that can express failure as a Maybe instead of halting parsing.
+lookupMay :: FromField a => NamedRecord -> C8.ByteString -> Parser (Maybe a)
+lookupMay m name = maybe (pure Nothing) parseField $ HM.lookup name m
+
+
+-- An operator for lookupMay for convenience
+(.:?) :: FromField a => NamedRecord -> C8.ByteString -> Parser (Maybe a)
+m .:? name = lookupMay m name
+
+
 strToMaybe :: String -> Maybe String
 strToMaybe "" = Nothing
 strToMaybe s = Just s
 
 
-mkLabels :: String -> [Int] -> [C8.ByteString]
-mkLabels format = map C8.pack . map (printf format)
+-- The 16 labels we create here represents a larger number than we're likely to
+-- see from a Google Contacts record. But it varies and will be determined by
+-- the contact with the most of this particular type of field!
+mkLabels :: String -> [C8.ByteString]
+mkLabels format = map C8.pack $ map (printf format) ([1..16] :: [Int])
 
 
 splitOnColons :: String -> Set String

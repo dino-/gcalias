@@ -62,6 +62,7 @@ library:
   - newtype-generics
   - split
   - tar
+  - unordered-containers
   - vector
   - zlib
 
