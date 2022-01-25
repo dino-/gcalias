@@ -7,6 +7,8 @@ module GcAlias.Alias
 import Control.Newtype.Generics ( op )
 import Data.Char ( toLower )
 import Data.List ( intercalate )
+import Data.Maybe ( fromMaybe )
+import Data.Monoid
 import Text.Printf ( printf )
 
 import GcAlias.Contact
@@ -21,24 +23,28 @@ data Alias = Alias
 
 
 toAliases :: [Contact] -> [Alias]
-toAliases = concatMap toAlias
+toAliases = concatMap oneContactToAliases
 
 
-toAlias :: Contact -> [Alias]
-toAlias contact = [Alias aliasString (maybe "" (op Name) $ name contact) (firstEmail $ emails contact)]
+oneContactToAliases :: Contact -> [Alias]
+oneContactToAliases contact = map mkAlias $ emails contact
   where
-    aliasString = mkAliasStr (name contact) (nickName contact) (org contact)
-
-    firstEmail :: [(String, String)] -> String
-    firstEmail [] = ""
-    firstEmail ((_,e):_) = e
+    mkAlias (label, addr) = Alias
+      (mkAliasStr (prefix contact) label (length (emails contact) == 1))
+      (fromMaybe "" $ op Name <$> name contact) addr
 
 
-mkAliasStr :: Maybe Name -> Maybe NickName -> Maybe Org -> String
-mkAliasStr _ (Just (NickName nnstr)) _ = scrub nnstr
-mkAliasStr (Just (Name nstr)) _ _ = scrub nstr
-mkAliasStr _ _ (Just (Org ostr)) = scrub ostr
-mkAliasStr _ _ _ = "BAD!!!"  -- FIXME Need much better error handling here!!
+mkAliasStr :: String -> String -> Bool -> String
+mkAliasStr prefix' _ True = scrub prefix'
+mkAliasStr prefix' label False = scrub (prefix' <> " " <> label)
+
+
+prefix :: Contact -> String
+prefix contact = fromMaybe "" . getFirst . mconcat . map First $
+  [ (op NickName <$> nickName contact)
+  , (op Name <$> name contact)
+  , (op Org <$> org contact)
+  ]
 
 
 scrub :: String -> String

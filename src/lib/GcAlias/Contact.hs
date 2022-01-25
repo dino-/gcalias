@@ -32,10 +32,14 @@ newtype Name = Name String
 instance Newtype Name
 
 newtype NickName = NickName String
-  deriving Show
+  deriving (Generic, Show)
+
+instance Newtype NickName
 
 newtype Org = Org String
-  deriving Show
+  deriving (Generic, Show)
+
+instance Newtype Org
 
 data Contact = Contact
   { name :: !(Maybe Name)

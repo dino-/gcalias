@@ -20,9 +20,7 @@ Source code is available from github at the [gcalias](https://github.com/dino-/g
 
 ### to do
 
-- Support multiple emails
 - More types, especially in the new GcAlias.Alias module
-- Add some unit tests
 
 
 ## Contact
