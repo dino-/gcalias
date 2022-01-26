@@ -18,10 +18,6 @@ fashion an email aliases file in the format expected by the mutt email client.
 
 Source code is available from github at the [gcalias](https://github.com/dino-/gcalias) project page.
 
-### to do
-
-- More types, especially in the new GcAlias.Alias module
-
 
 ## Contact
 
