@@ -69,7 +69,7 @@ lookupMay :: FromField a => NamedRecord -> C8.ByteString -> Parser (Maybe a)
 lookupMay m name = maybe (pure Nothing) parseField $ HM.lookup name m
 
 
--- An operator for lookupMay for convenience
+-- A convenience operator for lookupMay
 (.:?) :: FromField a => NamedRecord -> C8.ByteString -> Parser (Maybe a)
 m .:? name = lookupMay m name
 
