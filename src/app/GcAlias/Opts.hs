@@ -9,7 +9,7 @@ module GcAlias.Opts
   )
   where
 
-import Control.Newtype.Generics
+import Control.Newtype.Generics ( Newtype, op, pack )
 import Data.Version ( showVersion )
 import GHC.Generics
 import Options.Applicative

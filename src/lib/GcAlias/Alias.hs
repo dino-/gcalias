@@ -4,20 +4,27 @@ module GcAlias.Alias
   )
   where
 
-import Control.Newtype.Generics ( op )
+import Control.Newtype.Generics ( Newtype, op, pack )
 import Data.Char ( toLower )
 import Data.List ( intercalate )
 import Data.Maybe ( fromMaybe )
 import Data.Monoid
+import GHC.Generics
 import Text.Printf ( printf )
 
-import GcAlias.Contact
+import GcAlias.Common ( Email (..), Name (..) )
+import GcAlias.Contact ( Contact (..), NickName (..), Org (..) )
 
+
+newtype AliasNickName = AliasNickName String
+  deriving (Eq, Generic, Show)
+
+instance Newtype AliasNickName
 
 data Alias = Alias
-  { alias :: !String
-  , aname :: !String
-  , email :: !String
+  { alNickname :: !AliasNickName
+  , alName :: !Name
+  , alEmail :: !Email
   }
   deriving (Eq, Show)
 
@@ -30,13 +37,12 @@ oneContactToAliases :: Contact -> [Alias]
 oneContactToAliases contact = map mkAlias $ emails contact
   where
     mkAlias (label, addr) = Alias
-      (mkAliasStr (prefix contact) label (length (emails contact) == 1))
-      (fromMaybe "" $ op Name <$> name contact) addr
+      (mkNickname (prefix contact) label (length (emails contact) == 1))
+      (fromMaybe (pack "") $ name contact) addr
 
-
-mkAliasStr :: String -> String -> Bool -> String
-mkAliasStr prefix' _ True = scrub prefix'
-mkAliasStr prefix' label False = scrub (prefix' <> " " <> label)
+mkNickname :: String -> String -> Bool -> AliasNickName
+mkNickname prefix' _ True = pack . scrub $ prefix'
+mkNickname prefix' label False = pack . scrub $ prefix' <> " " <> label
 
 
 prefix :: Contact -> String
@@ -54,5 +60,5 @@ scrub = intercalate "_" . words
 
 
 mkAliasLine :: Alias -> String
-mkAliasLine (Alias alias' aname' email') =
-  printf "alias %s  %s <%s>" alias' aname' email'
+mkAliasLine (Alias (AliasNickName nicknameStr) (Name nameStr) (Email emailStr)) =
+  printf "alias %s  %s <%s>" nicknameStr nameStr emailStr

@@ -2,14 +2,14 @@
 
 module GcAlias.Contact
   ( Contact (..)
-  , Name (..), NickName (..), Org (..)
+  , NickName (..), Org (..)
   , importAllContacts
   , importContacts
   )
   where
 
 import Control.Arrow ( (***), second )
-import Control.Newtype.Generics
+import Control.Newtype.Generics ( Newtype, pack )
 import qualified Data.ByteString.Char8 as C8
 import qualified Data.ByteString.Lazy as BL
 import Data.Csv
@@ -25,11 +25,8 @@ import qualified Data.Vector as V
 import GHC.Generics
 import Text.Printf
 
+import GcAlias.Common ( Email (..), Name (..) )
 
-newtype Name = Name String
-  deriving (Generic, Show)
-
-instance Newtype Name
 
 newtype NickName = NickName String
   deriving (Generic, Show)
@@ -46,15 +43,15 @@ data Contact = Contact
   , nickName :: !(Maybe NickName)
   , org :: !(Maybe Org)
   , groups :: !(Set String)
-  , emails :: ![(String, String)]
+  , emails :: ![(String, Email)]
   }
   deriving Show
 
 instance FromNamedRecord Contact where
   parseNamedRecord r = do
     etypes <- (catMaybes <$>) <$> mapM (r .:?) $ mkLabels "E-mail %d - Type"
-    evalues <- (catMaybes <$>) <$> mapM (r .:?) $ mkLabels "E-mail %d - Value"
-    let allEmails = filter (/= ("","")) $ zip etypes evalues
+    evalues <- (map pack . catMaybes <$>) <$> mapM (r .:?) $ mkLabels "E-mail %d - Value"
+    let allEmails = filter (/= ("", pack "")) $ zip etypes evalues
     Contact
       <$> ((Name <$>)     <$> (strToMaybe <$> r .: "Name"))
       <*> ((NickName <$>) <$> (strToMaybe <$> r .: "Nickname"))

@@ -52,6 +52,7 @@ default-extensions:
 
 dependencies:
 - base >=3 && <5
+- newtype-generics
 
 library:
   source-dirs: src/lib
@@ -59,7 +60,6 @@ library:
   - bytestring
   - cassava
   - containers
-  - newtype-generics
   - split
   - tar
   - unordered-containers
@@ -74,7 +74,6 @@ executables:
     - ansi-wl-pprint
     - gcalias
     - heredoc
-    - newtype-generics
     - optparse-applicative
 
 tests:
