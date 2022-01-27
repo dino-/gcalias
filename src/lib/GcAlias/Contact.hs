@@ -38,11 +38,16 @@ newtype Org = Org String
 
 instance Newtype Org
 
+newtype Group = Group String
+  deriving (Eq, Generic, Ord, Show)
+
+instance Newtype Group
+
 data Contact = Contact
   { name :: !(Maybe Name)
   , nickName :: !(Maybe NickName)
   , org :: !(Maybe Org)
-  , groups :: !(Set String)
+  , groups :: !(Set Group)
   , emails :: ![(String, Email)]
   }
   deriving Show
@@ -83,14 +88,14 @@ mkLabels :: String -> [C8.ByteString]
 mkLabels format = map C8.pack $ map (printf format) ([1..16] :: [Int])
 
 
-splitOnColons :: String -> Set String
-splitOnColons = Set.fromList . splitOn " ::: "
+splitOnColons :: String -> Set Group
+splitOnColons = Set.fromList . map pack . splitOn " ::: "
 
 
 onlyMyContacts :: [Contact] -> [Contact]
 onlyMyContacts = mapMaybe f
   where
-    myContactsLabel = "* myContacts"
+    myContactsLabel = pack "* myContacts"
     f c@(Contact { groups = groupsSet }) =
       if Set.member myContactsLabel groupsSet
         then Just $ c { groups = Set.delete myContactsLabel groupsSet }
