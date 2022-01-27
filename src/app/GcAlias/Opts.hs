@@ -87,8 +87,8 @@ parseOpts = do
 footer' :: InfoMod a
 footer' = footerDoc . Just . string
     $ printf content (op CsvPath myContactsPath) (showVersion version)
-    where content = [here|gcalias is a tool for constructing a static mutt aliases file from a dump of Google Contacts in CSV format. The usage pattern would be: 1) Occasionally dump your contacts with Google Takeout <https://takeout.google.com/> 2) Run this tool on the .tgz file, piping the output to your mutt aliases file path.
+    where content = [here|gcalias is a tool for constructing a static mutt aliases file from a dump of Google Contacts in CSV format. The usage pattern would be: 1) Occasionally dump your contacts with Google Takeout <https://takeout.google.com/> 2) Run this tool on the tar gzip archive file, piping the output to your mutt aliases file path.
 
-The optional CSV_PATH argument defaults to "%s" and refers to a path inside the tgz archive received from Google.
+The optional CSV_PATH argument defaults to "%s" and refers to a path inside the archive received from Google.
 
 Version %s  Dino Morelli <dino@ui3.info>|]
