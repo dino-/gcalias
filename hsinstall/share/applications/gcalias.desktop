@@ -1,0 +1,8 @@
+[Desktop Entry]
+Categories=Utility;
+Type=Application
+Icon=gcalias
+Name=gcalias
+Exec=gcalias
+Terminal=true
+
