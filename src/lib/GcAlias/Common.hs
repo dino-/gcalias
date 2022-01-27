@@ -4,6 +4,7 @@ module GcAlias.Common
   ( ArchivePath (..)
   , CsvPath (..)
   , Email (..)
+  , Label (..)
   , Name (..)
   )
   where
@@ -26,6 +27,11 @@ newtype Name = Name String
   deriving (Eq, Generic, Show)
 
 instance Newtype Name
+
+newtype Label = Label String
+  deriving (Eq, Generic, Show)
+
+instance Newtype Label
 
 newtype Email = Email String
   deriving (Eq, Generic, Show)

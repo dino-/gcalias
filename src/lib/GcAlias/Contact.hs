@@ -25,7 +25,7 @@ import qualified Data.Vector as V
 import GHC.Generics
 import Text.Printf
 
-import GcAlias.Common ( Email (..), Name (..) )
+import GcAlias.Common ( Email (..), Label (..), Name (..) )
 
 
 newtype NickName = NickName String
@@ -48,15 +48,15 @@ data Contact = Contact
   , nickName :: !(Maybe NickName)
   , org :: !(Maybe Org)
   , groups :: !(Set Group)
-  , emails :: ![(String, Email)]
+  , emails :: ![(Label, Email)]
   }
   deriving Show
 
 instance FromNamedRecord Contact where
   parseNamedRecord r = do
-    etypes <- (catMaybes <$>) <$> mapM (r .:?) $ mkLabels "E-mail %d - Type"
+    etypes <- (map pack . catMaybes <$>) <$> mapM (r .:?) $ mkLabels "E-mail %d - Type"
     evalues <- (map pack . catMaybes <$>) <$> mapM (r .:?) $ mkLabels "E-mail %d - Value"
-    let allEmails = filter (/= ("", pack "")) $ zip etypes evalues
+    let allEmails = filter (/= (pack "", pack "")) $ zip etypes evalues
     Contact
       <$> ((Name <$>)     <$> (strToMaybe <$> r .: "Name"))
       <*> ((NickName <$>) <$> (strToMaybe <$> r .: "Nickname"))

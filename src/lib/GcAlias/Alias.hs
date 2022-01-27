@@ -12,7 +12,7 @@ import Data.Monoid
 import GHC.Generics
 import Text.Printf ( printf )
 
-import GcAlias.Common ( Email (..), Name (..) )
+import GcAlias.Common ( Email (..), Label (..), Name (..) )
 import GcAlias.Contact ( Contact (..), NickName (..), Org (..) )
 
 
@@ -40,9 +40,10 @@ oneContactToAliases contact = map mkAlias $ emails contact
       (mkNickname (prefix contact) label (length (emails contact) == 1))
       (fromMaybe (pack "") $ name contact) addr
 
-mkNickname :: String -> String -> Bool -> AliasNickName
+
+mkNickname :: String -> Label -> Bool -> AliasNickName
 mkNickname prefix' _ True = pack . scrub $ prefix'
-mkNickname prefix' label False = pack . scrub $ prefix' <> " " <> label
+mkNickname prefix' (Label labelStr) False = pack . scrub $ prefix' <> " " <> labelStr
 
 
 prefix :: Contact -> String

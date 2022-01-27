@@ -24,7 +24,7 @@ contactWithOneEmail :: TestTree
 contactWithOneEmail = testCase "Contact with one email address" $ do
   let expected = [Alias (pack "foo_bar") (pack "Foo Bar") (pack "foo@bar.com")]
   let actual = toAliases $ [ Contact (Just (Name "Foo Bar")) Nothing Nothing Set.empty
-        [ ("* ", pack "foo@bar.com") ] ]
+        [ (pack "* ", pack "foo@bar.com") ] ]
   expected @=? actual
 
 
@@ -35,5 +35,5 @@ contactWithTwoEmails = testCase "Contact with two email addresses" $ do
         , Alias (pack "foo_bar_work") (pack "Foo Bar") (pack "foo@work.com")
         ]
   let actual = toAliases $ [ Contact (Just (Name "Foo Bar")) Nothing Nothing Set.empty
-        [ ("* Home", pack "foo@bar.com"), ("Work", pack "foo@work.com") ] ]
+        [ (pack "* Home", pack "foo@bar.com"), (pack "Work", pack "foo@work.com") ] ]
   expected @=? actual
