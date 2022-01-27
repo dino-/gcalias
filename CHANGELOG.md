@@ -1,3 +1,3 @@
-1.0 (YYYY-MM-DD)
+1.0 (2022-01-27)
 
   * Initial release
