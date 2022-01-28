@@ -91,4 +91,8 @@ footer' = footerDoc . Just . string
 
 The optional CSV_PATH argument defaults to "%s" and refers to a path inside the archive received from Google.
 
+Contacts without email addresses are excluded.
+
+For contacts with more than one email, the email label will be included in the nickname.
+
 Version %s  Dino Morelli <dino@ui3.info>|]
