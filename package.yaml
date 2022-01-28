@@ -12,9 +12,12 @@ category: Unclassified
 extra-source-files:
 - CHANGELOG.md
 - .gitignore
+- hsinstall/share/applications/gcalias.desktop
+- hsinstall/share/icons/hicolor/scalable/apps/gcalias.svg
 - package.yaml
 - README.md
 - stack.yaml
+- stack.yaml.lock
 
 github: dino-/gcalias
 
