@@ -65,6 +65,7 @@ library:
   - containers
   - split
   - tar
+  - text
   - unordered-containers
   - vector
   - zlib

@@ -10,7 +10,7 @@ module GcAlias.Contact
 
 import Control.Arrow ( (***), second )
 import Control.Newtype.Generics ( Newtype, pack )
-import qualified Data.ByteString.Char8 as C8
+import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
 import Data.Csv
   ( Parser, (.:), FromField, NamedRecord
@@ -21,6 +21,8 @@ import Data.List.Split
 import Data.Maybe ( catMaybes, mapMaybe )
 import qualified Data.Set as Set
 import Data.Set ( Set )
+import qualified Data.Text as T
+import qualified Data.Text.Encoding as T
 import qualified Data.Vector as V
 import GHC.Generics
 import Text.Printf
@@ -67,12 +69,12 @@ instance FromNamedRecord Contact where
 
 -- Our data has optional columns. Needed to implement a named record lookup
 -- function that can express failure as a Maybe instead of halting parsing.
-lookupMay :: FromField a => NamedRecord -> C8.ByteString -> Parser (Maybe a)
+lookupMay :: FromField a => NamedRecord -> B.ByteString -> Parser (Maybe a)
 lookupMay m name = maybe (pure Nothing) parseField $ HM.lookup name m
 
 
 -- A convenience operator for lookupMay
-(.:?) :: FromField a => NamedRecord -> C8.ByteString -> Parser (Maybe a)
+(.:?) :: FromField a => NamedRecord -> B.ByteString -> Parser (Maybe a)
 m .:? name = lookupMay m name
 
 
@@ -84,8 +86,8 @@ strToMaybe s = Just s
 -- The 16 labels we create here represents a larger number than we're likely to
 -- see from a Google Contacts record. But it varies and will be determined by
 -- the contact with the most of this particular type of field!
-mkLabels :: String -> [C8.ByteString]
-mkLabels format = map C8.pack $ map (printf format) ([1..16] :: [Int])
+mkLabels :: String -> [B.ByteString]
+mkLabels format = map (T.encodeUtf8 . T.pack) $ map (printf format) ([1..16] :: [Int])
 
 
 splitOnColons :: String -> Set Group
@@ -108,7 +110,7 @@ onlyWithEmails = filter $ not . null . emails
 
 importAllContacts :: BL.ByteString -> Either String ([String], [Contact])
 importAllContacts csvData = either Left
-  (Right . ((V.toList . V.map C8.unpack) *** V.toList))
+  (Right . ((V.toList . V.map (T.unpack . T.decodeUtf8)) *** V.toList))
   . decodeByName $ csvData
 
 
