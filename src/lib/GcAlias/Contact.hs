@@ -17,7 +17,6 @@ import Data.Csv
   , decodeByName, FromNamedRecord, parseField, parseNamedRecord
   )
 import qualified Data.HashMap.Lazy as HM
-import Data.List.Split
 import Data.Maybe ( catMaybes, mapMaybe )
 import qualified Data.Set as Set
 import Data.Set ( Set )
@@ -30,17 +29,17 @@ import Text.Printf
 import GcAlias.Common ( Email (..), Label (..), Name (..) )
 
 
-newtype NickName = NickName String
+newtype NickName = NickName T.Text
   deriving (Generic, Show)
 
 instance Newtype NickName
 
-newtype Org = Org String
+newtype Org = Org T.Text
   deriving (Generic, Show)
 
 instance Newtype Org
 
-newtype Group = Group String
+newtype Group = Group T.Text
   deriving (Eq, Generic, Ord, Show)
 
 instance Newtype Group
@@ -78,9 +77,9 @@ lookupMay m name = maybe (pure Nothing) parseField $ HM.lookup name m
 m .:? name = lookupMay m name
 
 
-strToMaybe :: String -> Maybe String
+strToMaybe :: String -> Maybe T.Text
 strToMaybe "" = Nothing
-strToMaybe s = Just s
+strToMaybe s = Just . T.pack $ s
 
 
 -- The 16 labels we create here represents a larger number than we're likely to
@@ -91,7 +90,7 @@ mkLabels format = map (T.encodeUtf8 . T.pack) $ map (printf format) ([1..16] :: 
 
 
 splitOnColons :: String -> Set Group
-splitOnColons = Set.fromList . map pack . splitOn " ::: "
+splitOnColons = Set.fromList . map pack . T.splitOn " ::: " . T.pack
 
 
 onlyMyContacts :: [Contact] -> [Contact]

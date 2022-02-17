@@ -5,10 +5,9 @@ module GcAlias.Alias
   where
 
 import Control.Newtype.Generics ( Newtype, op, pack )
-import Data.Char ( toLower )
-import Data.List ( intercalate )
 import Data.Maybe ( fromMaybe )
 import Data.Monoid
+import qualified Data.Text as T
 import GHC.Generics
 import Text.Printf ( printf )
 
@@ -16,7 +15,7 @@ import GcAlias.Common ( Email (..), Label (..), Name (..) )
 import GcAlias.Contact ( Contact (..), NickName (..), Org (..) )
 
 
-newtype AliasNickName = AliasNickName String
+newtype AliasNickName = AliasNickName T.Text
   deriving (Eq, Generic, Show)
 
 instance Newtype AliasNickName
@@ -41,12 +40,12 @@ oneContactToAliases contact = map mkAlias $ emails contact
       (fromMaybe (pack "") $ name contact) addr
 
 
-mkNickname :: String -> Label -> Bool -> AliasNickName
+mkNickname :: T.Text -> Label -> Bool -> AliasNickName
 mkNickname prefix' _ True = pack . scrub $ prefix'
 mkNickname prefix' (Label labelStr) False = pack . scrub $ prefix' <> " " <> labelStr
 
 
-prefix :: Contact -> String
+prefix :: Contact -> T.Text
 prefix contact = fromMaybe "" . getFirst . mconcat . map First $
   [ (op NickName <$> nickName contact)
   , (op Name <$> name contact)
@@ -54,10 +53,10 @@ prefix contact = fromMaybe "" . getFirst . mconcat . map First $
   ]
 
 
-scrub :: String -> String
-scrub = intercalate "_" . words
-  . filter (`elem` ("abcdefghijklmnopqrstuvwxyz1234567890 " :: String))
-  . map toLower
+scrub :: T.Text -> T.Text
+scrub = T.intercalate "_" . T.words
+  . T.filter (`elem` ("abcdefghijklmnopqrstuvwxyz1234567890 " :: String))
+  . T.toLower
 
 
 mkAliasLine :: Alias -> String

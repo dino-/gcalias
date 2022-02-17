@@ -63,7 +63,6 @@ library:
   - bytestring
   - cassava
   - containers
-  - split
   - tar
   - text
   - unordered-containers

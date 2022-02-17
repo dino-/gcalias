@@ -11,6 +11,7 @@ module GcAlias.Common
 
 import Control.Newtype.Generics ( Newtype )
 import GHC.Generics
+import qualified Data.Text as T
 
 
 newtype ArchivePath = ArchivePath FilePath
@@ -23,17 +24,17 @@ newtype CsvPath = CsvPath FilePath
 
 instance Newtype CsvPath
 
-newtype Name = Name String
+newtype Name = Name T.Text
   deriving (Eq, Generic, Show)
 
 instance Newtype Name
 
-newtype Label = Label String
+newtype Label = Label T.Text
   deriving (Eq, Generic, Show)
 
 instance Newtype Label
 
-newtype Email = Email String
+newtype Email = Email T.Text
   deriving (Eq, Generic, Show)
 
 instance Newtype Email
