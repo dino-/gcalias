@@ -55,14 +55,14 @@ data Contact = Contact
 
 instance FromNamedRecord Contact where
   parseNamedRecord r = do
-    etypes <- (map pack . catMaybes <$>) <$> mapM (r .:?) $ mkLabels "E-mail %d - Type"
+    etypes <- (map pack . catMaybes <$>) <$> mapM (r .:?) $ mkLabels "E-mail %d - Label"
     evalues <- (map pack . catMaybes <$>) <$> mapM (r .:?) $ mkLabels "E-mail %d - Value"
     let allEmails = filter (/= (pack "", pack "")) $ zip etypes evalues
     Contact
       <$> ((Name <$>)     <$> (strToMaybe <$> r .: "Name"))
       <*> ((NickName <$>) <$> (strToMaybe <$> r .: "Nickname"))
-      <*> ((Org <$>)      <$> (strToMaybe <$> r .: "Organization 1 - Name"))
-      <*> (splitOnColons <$> r .: "Group Membership")
+      <*> ((Org <$>)      <$> (strToMaybe <$> r .: "Organization Name"))
+      <*> (splitOnColons <$> r .: "Labels")
       <*> pure allEmails
 
 
