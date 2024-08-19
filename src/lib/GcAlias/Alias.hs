@@ -4,11 +4,8 @@ module GcAlias.Alias
   )
   where
 
-import Control.Newtype.Generics ( Newtype, op, pack )
 import Data.Maybe ( fromMaybe )
-import Data.Monoid
 import qualified Data.Text as T
-import GHC.Generics
 import Text.Printf ( printf )
 
 import GcAlias.Common ( Email (..), Label (..), Name (..) )
@@ -16,9 +13,7 @@ import GcAlias.Contact ( Contact (..), NickName (..), Org (..) )
 
 
 newtype AliasNickName = AliasNickName T.Text
-  deriving (Eq, Generic, Show)
-
-instance Newtype AliasNickName
+  deriving (Eq, Show)
 
 data Alias = Alias
   { alNickname :: !AliasNickName
@@ -37,20 +32,19 @@ oneContactToAliases contact = map mkAlias $ emails contact
   where
     mkAlias (label, addr) = Alias
       (mkNickname (prefix contact) label (length (emails contact) == 1))
-      (fromMaybe (pack "") $ name contact) addr
+      (fromMaybe (Name "") $ name contact) addr
 
 
 mkNickname :: T.Text -> Label -> Bool -> AliasNickName
-mkNickname prefix' _ True = pack . scrub $ prefix'
-mkNickname prefix' (Label labelStr) False = pack . scrub $ prefix' <> " " <> labelStr
+mkNickname prefix' _ True = AliasNickName . scrub $ prefix'
+mkNickname prefix' (Label labelStr) False = AliasNickName . scrub $ prefix' <> " " <> labelStr
 
 
 prefix :: Contact -> T.Text
-prefix contact = fromMaybe "" . getFirst . mconcat . map First $
-  [ (op NickName <$> nickName contact)
-  , (op Name <$> name contact)
-  , (op Org <$> org contact)
-  ]
+prefix (Contact (Just (Name n)) _ _ _ _) = n
+prefix (Contact _ (Just (NickName nn)) _ _ _) = nn
+prefix (Contact _ _ (Just (Org o)) _ _) = o
+prefix _ = ""
 
 
 scrub :: T.Text -> T.Text

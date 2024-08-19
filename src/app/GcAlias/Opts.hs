@@ -1,5 +1,4 @@
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE QuasiQuotes #-}
+{-# LANGUAGE DuplicateRecordFields, OverloadedRecordDot, QuasiQuotes #-}
 
 module GcAlias.Opts
   ( DumpContacts (..)
@@ -9,9 +8,7 @@ module GcAlias.Opts
   )
   where
 
-import Control.Newtype.Generics ( Newtype, op, pack )
 import Data.Version ( showVersion )
-import GHC.Generics
 import Options.Applicative
 import Paths_gcalias ( version )
 import System.Environment ( getProgName )
@@ -22,15 +19,9 @@ import Text.Printf ( printf )
 import GcAlias.Common ( ArchivePath (..), CsvPath (..) )
 
 
-newtype DumpContacts = DumpContacts Bool
-  deriving Generic
+newtype DumpContacts = DumpContacts { v :: Bool }
 
-instance Newtype DumpContacts
-
-newtype DumpFields = DumpFields Bool
-  deriving Generic
-
-instance Newtype DumpFields
+newtype DumpFields = DumpFields { v :: Bool }
 
 data Options = Options
   { optDumpContacts :: DumpContacts
@@ -41,7 +32,7 @@ data Options = Options
 
 
 myContactsPath :: CsvPath
-myContactsPath = pack "Takeout/Contacts/My Contacts/My Contacts.csv"
+myContactsPath = CsvPath "Takeout/Contacts/My Contacts/My Contacts.csv"
 
 
 parser :: Parser Options
@@ -86,7 +77,7 @@ parseOpts = do
 
 footer' :: InfoMod a
 footer' = footerDoc . Just . string
-    $ printf content (op CsvPath myContactsPath) (showVersion version)
+    $ printf content (myContactsPath.v) (showVersion version)
     where content = [here|gcalias is a tool for constructing a static mutt aliases file from a dump of Google Contacts in CSV format. The usage pattern would be: 1) Occasionally dump your contacts with Google Takeout <https://takeout.google.com/> 2) Run this tool on the tar gzip archive file, piping the output to your mutt aliases file path.
 
 The optional CSV_PATH argument defaults to "%s" and refers to a path inside the archive received from Google.

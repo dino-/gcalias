@@ -50,8 +50,6 @@ common lang
     ScopedTypeVariables
     StandaloneDeriving
     TupleSections
-  build-depends:
-      newtype-generics
   ghc-options:
     -fwarn-tabs
     -Wall
@@ -79,7 +77,6 @@ library
     , bytestring
     , cassava
     , containers
-    , newtype-generics
     , tar
     , text
     , unordered-containers
@@ -99,7 +96,6 @@ executable gcalias
     , base >=3 && <5
     , gcalias
     , heredoc
-    , newtype-generics
     , optparse-applicative
 
 test-suite gcalias-test-suite
@@ -115,6 +111,5 @@ test-suite gcalias-test-suite
       base >=3 && <5
     , containers
     , gcalias
-    , newtype-generics
     , tasty
     , tasty-hunit

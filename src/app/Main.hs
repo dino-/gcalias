@@ -1,5 +1,6 @@
+{-# LANGUAGE OverloadedRecordDot #-}
+
 import Control.Monad ( when )
-import Control.Newtype.Generics
 import System.Exit ( exitFailure, exitSuccess )
 import System.IO
   ( BufferMode (NoBuffering)
@@ -17,9 +18,9 @@ main = do
   opts <- parseOpts
   eCsvContents <- accessFile (optArchivePath opts) (optCsvPath opts)
   let eContacts = importContacts =<< eCsvContents
-  when (op DumpContacts . optDumpContacts $ opts) $
+  when opts.optDumpContacts.v $
     display $ map show <$> either Left (Right . snd) eContacts
-  when (op DumpFields . optDumpFields $ opts) $
+  when opts.optDumpFields.v $
     display $ map show <$> either Left (Right . fst) eContacts
   let eAliases = (map mkAliasLine . toAliases . snd) <$> eContacts
   display eAliases

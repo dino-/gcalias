@@ -9,7 +9,6 @@ module GcAlias.Contact
   where
 
 import Control.Arrow ( (***), second )
-import Control.Newtype.Generics ( Newtype, pack )
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL
 import Data.Csv
@@ -23,26 +22,19 @@ import Data.Set ( Set )
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
 import qualified Data.Vector as V
-import GHC.Generics
 import Text.Printf
 
 import GcAlias.Common ( Email (..), Label (..), Name (..) )
 
 
 newtype NickName = NickName T.Text
-  deriving (Generic, Show)
-
-instance Newtype NickName
+  deriving Show
 
 newtype Org = Org T.Text
-  deriving (Generic, Show)
-
-instance Newtype Org
+  deriving Show
 
 newtype Group = Group T.Text
-  deriving (Eq, Generic, Ord, Show)
-
-instance Newtype Group
+  deriving (Eq, Ord, Show)
 
 data Contact = Contact
   { name :: !(Maybe Name)
@@ -55,9 +47,9 @@ data Contact = Contact
 
 instance FromNamedRecord Contact where
   parseNamedRecord r = do
-    etypes <- (map pack . catMaybes <$>) <$> mapM (r .:?) $ mkLabels "E-mail %d - Label"
-    evalues <- (map pack . catMaybes <$>) <$> mapM (r .:?) $ mkLabels "E-mail %d - Value"
-    let allEmails = filter (/= (pack "", pack "")) $ zip etypes evalues
+    etypes <- (map Label . catMaybes <$>) <$> mapM (r .:?) $ mkLabels "E-mail %d - Label"
+    evalues <- (map Email . catMaybes <$>) <$> mapM (r .:?) $ mkLabels "E-mail %d - Value"
+    let allEmails = filter (/= (Label "", Email "")) $ zip etypes evalues
     Contact
       <$> ((Name <$>)     <$> (strToMaybe <$> r .: "Name"))
       <*> ((NickName <$>) <$> (strToMaybe <$> r .: "Nickname"))
@@ -90,13 +82,13 @@ mkLabels format = map (T.encodeUtf8 . T.pack) $ map (printf format) ([1..16] :: 
 
 
 splitOnColons :: String -> Set Group
-splitOnColons = Set.fromList . map pack . T.splitOn " ::: " . T.pack
+splitOnColons = Set.fromList . map Group . T.splitOn " ::: " . T.pack
 
 
 onlyMyContacts :: [Contact] -> [Contact]
 onlyMyContacts = mapMaybe f
   where
-    myContactsLabel = pack "* myContacts"
+    myContactsLabel = Group "* myContacts"
     f c@(Contact { groups = groupsSet }) =
       if Set.member myContactsLabel groupsSet
         then Just $ c { groups = Set.delete myContactsLabel groupsSet }
