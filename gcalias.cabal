@@ -1,0 +1,120 @@
+cabal-version: 2.2
+
+name: gcalias
+version: 1.3
+synopsis: Google Contacts CSV to mutt alias file
+description: A utility to extract contact records from a CSV export of Google Contacts and fashion an email aliases file in the format expected by the mutt email client.
+category: Unclassified
+homepage: https://github.com/dino-/gcalias#readme
+bug-reports: https://github.com/dino-/gcalias/issues
+author: Dino Morelli
+maintainer: dino@ui3.info
+copyright: 2022 Dino Morelli
+license: ISC
+license-file: LICENSE
+build-type: Simple
+extra-source-files:
+  CHANGELOG.md
+  .gitignore
+  hsinstall/share/applications/gcalias.desktop
+  hsinstall/share/icons/hicolor/scalable/apps/gcalias.svg
+  README.md
+  stack.yaml
+  stack.yaml.lock
+
+source-repository head
+  type: git
+  location: https://github.com/dino-/gcalias
+
+common lang
+  default-language: Haskell2010
+  default-extensions:
+    BangPatterns
+    DeriveFoldable
+    DeriveFunctor
+    DeriveGeneric
+    DeriveLift
+    DeriveTraversable
+    EmptyCase
+    FlexibleContexts
+    FlexibleInstances
+    GeneralizedNewtypeDeriving
+    InstanceSigs
+    KindSignatures
+    LambdaCase
+    MultiParamTypeClasses
+    MultiWayIf
+    NamedFieldPuns
+    NumericUnderscores
+    OverloadedStrings
+    ScopedTypeVariables
+    StandaloneDeriving
+    TupleSections
+  build-depends:
+      newtype-generics
+  ghc-options:
+    -fwarn-tabs
+    -Wall
+    -Wcompat
+    -Wincomplete-record-updates
+    -Wincomplete-uni-patterns
+    -Wpartial-fields
+    -Wredundant-constraints
+  autogen-modules:
+    Paths_gcalias
+
+library
+  import: lang
+  exposed-modules:
+      GcAlias.Alias
+      GcAlias.Common
+      GcAlias.Contact
+      GcAlias.TarGz
+  other-modules:
+      Paths_gcalias
+  hs-source-dirs:
+      src/lib
+  build-depends:
+      base >=3 && <5
+    , bytestring
+    , cassava
+    , containers
+    , newtype-generics
+    , tar
+    , text
+    , unordered-containers
+    , vector
+    , zlib
+
+executable gcalias
+  import: lang
+  main-is: Main.hs
+  other-modules:
+      GcAlias.Opts
+      Paths_gcalias
+  hs-source-dirs:
+      src/app
+  build-depends:
+      ansi-wl-pprint
+    , base >=3 && <5
+    , gcalias
+    , heredoc
+    , newtype-generics
+    , optparse-applicative
+
+test-suite gcalias-test-suite
+  import: lang
+  type: exitcode-stdio-1.0
+  main-is: Main.hs
+  other-modules:
+      GcAlias.Test.Alias
+      Paths_gcalias
+  hs-source-dirs:
+      src/test
+  build-depends:
+      base >=3 && <5
+    , containers
+    , gcalias
+    , newtype-generics
+    , tasty
+    , tasty-hunit
