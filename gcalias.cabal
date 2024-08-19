@@ -1,7 +1,7 @@
 cabal-version: 2.2
 
 name: gcalias
-version: 1.3
+version: 1.4
 synopsis: Google Contacts CSV to mutt alias file
 description: A utility to extract contact records from a CSV export of Google Contacts and fashion an email aliases file in the format expected by the mutt email client.
 category: Unclassified
